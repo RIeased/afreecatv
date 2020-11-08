@@ -9,5 +9,3 @@
 osmc-rpi3, window테스트 
 
 version 1.0.0 2020-11-08
-version 0.0.2 2020-11-06 
-version 0.0.1 2020-10-28
