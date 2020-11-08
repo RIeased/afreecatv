@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.afreecatv" version="0.0.2" name="Afreecatv" provider-name="kor Afreeca">
+<addon id="plugin.video.afreecatv" version="1.0.0" name="Afreecatv" provider-name="kor Afreeca">
 <requires>
   <import addon="xbmc.python" version="2.26.0"/>
   <import addon="script.module.requests" version="2.22.0"/>
@@ -17,6 +17,6 @@
   <assets>
     <icon>icon.png</icon>
   </assets>
-  <news>변경사항</news>
+  <news>화질 원본화질 재생가능</news>
 </extension>
 </addon>

@@ -22,17 +22,17 @@ def main():
             li = xbmcgui.ListItem(tit)
             li.setThumbnailImage(thum)        
         
-            headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'}
+            headers = {'User-Agent': 'kr.co.nowcom.mobile.afreeca/5.14.0 (Android 9) Afreeca API/5.14.0'}
             data = {'broad_no': br_no,
                     'parent_broad_no': '0', 
                     'origianl_broad_no': br_no,
                     'bj_id': user}
         
-            url = 'http://api.m.afreecatv.com/broad/a/watch?bjid=y1026'
+            url = 'http://api.m.afreecatv.com/broad/a/watch'
             response = requests.post(url=url, data=data, headers=headers).json()
             ticket = response["data"]["hls_authentication_key"]
         
-            urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn_mobile_web&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-mobileweb-hd-hls'.format(br_no)
+            urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(br_no)
             live = requests.get(urllive).json()
             view = live["view_url"]
         
