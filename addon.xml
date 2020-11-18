@@ -10,10 +10,10 @@
 <extension point="xbmc.addon.metadata">
   <summary lang="en">AfreecaTV Plugin</summary>
   <description lang="en_GB">AfreecaTV plugin for Kodi mediacenter.</description>
-  <disclaimer lang="en_GB">now.naver.com</disclaimer>
+  <disclaimer lang="en_GB">m.afreecatv.com</disclaimer>
   <summary lang="ko_kr">아프리카티비</summary>
-  <description lang="ko_kr">코디용 아프리카티비.</description>
-  <disclaimer lang="ko_kr">now.naver.com</disclaimer>
+  <description lang="ko_kr">코디용 아프리카티비 상위 20위까지만 노출</description>
+  <disclaimer lang="ko_kr">m.afreecatv.com</disclaimer>
   <assets>
     <icon>icon.png</icon>
   </assets>
