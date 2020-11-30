@@ -1,118 +1,157 @@
+import sys
 import xbmcgui
 import xbmcplugin
-import xbmcaddon
 import requests
 import json
-import os
-from urllib import urlencode
-from urlparse import parse_qsl
+import urlparse
+import urllib
+import xbmc
 
-_url = sys.argv[0]
-_handle = int(sys.argv[1])
-_addon = xbmcaddon.Addon()
+base_url = sys.argv[0]
+addon_handle = int(sys.argv[1])
+args = urlparse.parse_qs(sys.argv[2][1:])
 
-
-def get_url(**kwargs):
-    return '{0}?{1}'.format(_url, urlencode(kwargs))
-
-def play_video(path):
-    play_item = xbmcgui.ListItem(path=path)
-    xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
+xbmcplugin.setContent(addon_handle, 'videos')
 
 
-def list_categories():
-
-    xbmcplugin.setPluginCategory(_handle, 'Afreeca TV')
-    xbmcplugin.setContent(_handle, 'videos')
-    
-    list_item = xbmcgui.ListItem(label='Live')
-    url = get_url(action='listing', category='Live')
-    is_folder = True
-    xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
-    xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
-    xbmcplugin.endOfDirectory(_handle)
+def build_url(query):
+    return base_url + '?' + urllib.urlencode(query)
 
 
-def get_videos(category):
+def live_videos():
 
     urlitem = 'http://api.m.afreecatv.com/broad/a/items2'
 
-    Live_lists = []
+    Lives = []
     reqlist = requests.get(urlitem).json()
     list = reqlist["data"]["groups"]
     for list1 in list:
         list2 = list1["contents"]
         for list3 in list2:
             
-            Live_list = dict()
-            Live_list['br_no'] = list3["broad_no"]
-            Live_list['tit'] = list3["title"]
-            Live_list['thumb'] = list3["thumbnail"]
-            Live_list['user'] = list3["user_id"]        
+            Live = dict()
+            Live['br_no'] = list3["broad_no"]
+            Live['title'] = list3["title"]
+            Live['thumb'] = list3["thumbnail"]
+            Live['user'] = list3["user_id"]        
         
             headers = {'User-Agent': 'kr.co.nowcom.mobile.afreeca/5.14.0 (Android 9) Afreeca API/5.14.0'}
-            data = {'broad_no': Live_list['br_no'],
+            data = {'broad_no': Live['br_no'],
                     'parent_broad_no': '0', 
-                    'origianl_broad_no': Live_list['br_no'],
-                    'bj_id': Live_list['user']}
+                    'origianl_broad_no': Live['br_no'],
+                    'bj_id': Live['user']}
         
             url = 'http://api.m.afreecatv.com/broad/a/watch'
             response = requests.post(url=url, data=data, headers=headers).json()
             ticket = response["data"]["hls_authentication_key"]
         
-            urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(Live_list['br_no'])
+            urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(Live['br_no'])
             live = requests.get(urllive).json()
             view = live["view_url"]
         
-            Live_list['video'] = view + '?aid=' + ticket
-            Live_lists.append(Live_list)
-
-    return Live_lists
-
-
-
-
-def list_videos(category):
-
-    xbmcplugin.setPluginCategory(_handle, 'Live')
-    xbmcplugin.setContent(_handle, 'videos')
-
-    videos = get_videos(category)
-    for video in videos:    
-        list_item = xbmcgui.ListItem(label=video['tit'])
-        list_item.setInfo('video', {'title': video['tit'],
-                                    'mediatype': 'video'})
-
-        list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
-        list_item.setProperty('IsPlayable', 'true')
-        url = get_url(action='play', video=video['video'])
-        is_folder = False
+            Live['play'] = view + '?aid=' + ticket
+            
+            li = xbmcgui.ListItem(Live["title"], iconImage=Live["thumb"])
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=Live["play"], listitem=li, isFolder=False)
+            Lives.append(Live)
         
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder) 
-    xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
-    xbmcplugin.endOfDirectory(_handle)
+    return Lives
+
+def Search_videos():
+    
+    kb = xbmc.Keyboard('default', 'heading', True)
+    kb.setDefault('') # optional
+    kb.setHeading('Search') # optional
+    kb.setHiddenInput(False) # optional
+    kb.doModal()
+    if kb.isConfirmed():
+
+        Search = kb.getText()
+
+        urlsrh = 'http://sch.afreecatv.com/api.php'
+        data = {'v': '1.0',
+            'm': 'liveSearch',
+            'w': 'webm',
+            'isMobile': '1',
+            'szKeyword': Search,
+            'szOrder': 'accur',
+            'nListCnt': '6',
+            'nPageNo': '1'}
+
+        req = requests.post(url=urlsrh, data=data).json()
+        search = req["data"]["groups"]
+        for s in search:
+            e = s["contents"]
+
+            try:
+                for searchls in e:
+
+                    br_no = searchls["broad_no"]
+                    title = searchls["title"]
+                    thumb = searchls["thumbnail"]
+                    user = searchls["user_id"]        
+        
+                    headers = {'User-Agent': 'kr.co.nowcom.mobile.afreeca/5.14.0 (Android 9) Afreeca API/5.14.0'}
+                    data = {'broad_no': br_no,
+                            'parent_broad_no': '0', 
+                            'origianl_broad_no': br_no,
+                            'bj_id': user}
+        
+                    url = 'http://api.m.afreecatv.com/broad/a/watch'
+                    response = requests.post(url=url, data=data, headers=headers).json()
+                    ticket = response["data"]["hls_authentication_key"]
+        
+                    urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(br_no)
+                    live = requests.get(urllive).json()
+                    view = live["view_url"]
+        
+                    play = view + '?aid=' + ticket
+                
+                    li = xbmcgui.ListItem(title, iconImage=thumb)
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=play, listitem=li, isFolder=False)
+    
+            except ValueError:
+                dialog = xbmcgui.Dialog()
+                ok = dialog.ok('Kodi', 'There was an error.')
+                if mode is None:
+                    url = build_url({'mode': 'SEARCH', 'foldername': 'SEARCH'})
+                    li = xbmcgui.ListItem('SEARCH', iconImage='DefaultFolder.png')
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
+                                            listitem=li, isFolder=True)
+
+                    url = build_url({'mode': 'LIVE', 'foldername': 'LIVE'})
+                    li = xbmcgui.ListItem('LIVE', iconImage='DefaultFolder.png')
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
+                                            listitem=li, isFolder=True)
+    
+                    xbmcplugin.endOfDirectory(addon_handle)
+        
 
 
 
 
 
-def router(paramstring):
+mode = args.get('mode', None)
 
-    params = dict(parse_qsl(paramstring))
+if mode is None:
+    url = build_url({'mode': 'SEARCH', 'foldername': 'SEARCH'})
+    li = xbmcgui.ListItem('SEARCH', iconImage='DefaultFolder.png')
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
+                                listitem=li, isFolder=True)
 
-    if params:
-        if params['action'] == 'listing':
-            list_videos(params['category'])
+    url = build_url({'mode': 'LIVE_top20', 'foldername': 'LIVE_top20'})
+    li = xbmcgui.ListItem('LIVE_top20', iconImage='DefaultFolder.png')
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
+                                listitem=li, isFolder=True)
+    
+    xbmcplugin.endOfDirectory(addon_handle)
 
-        elif params['action'] == 'play':
-            play_video(params['video'])
-        else:
-            raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
-    else:
+elif mode[0] == 'SEARCH':
+    foldername = args['foldername'][0]
+    Search_videos()
+    xbmcplugin.endOfDirectory(addon_handle)
 
-        list_categories()
-
-
-if __name__ == '__main__':
-
-    router(sys.argv[2][1:])
+elif mode[0] == 'LIVE_top20':
+    foldername = args['foldername'][0]
+    live_videos()
+    xbmcplugin.endOfDirectory(addon_handle)

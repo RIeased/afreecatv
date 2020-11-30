@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.afreecatv" version="1.0.0" name="Afreecatv" provider-name="RIeased">
+<addon id="plugin.video.afreecatv" version="2.0.0" name="Afreecatv" provider-name="RIeased">
 <requires>
   <import addon="xbmc.python" version="2.26.0"/>
   <import addon="script.module.requests" version="2.22.0"/>
@@ -12,7 +12,7 @@
   <description lang="en_GB">AfreecaTV plugin for Kodi mediacenter.</description>
   <disclaimer lang="en_GB">m.afreecatv.com</disclaimer>
   <summary lang="ko_kr">아프리카티비</summary>
-  <description lang="ko_kr">코디용 아프리카티비 상위 20위까지만 노출</description>
+  <description lang="ko_kr">코디용 아프리카티비 상위 20위까지만 노출 생방송만 검색가능</description>
   <disclaimer lang="ko_kr">m.afreecatv.com</disclaimer>
   <assets>
     <icon>icon.png</icon>
