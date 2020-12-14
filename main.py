@@ -11,11 +11,11 @@ base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 xbmcplugin.setContent(addon_handle, 'videos')
-
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
-
 
 def live_videos():
 
@@ -130,9 +130,6 @@ def folder(mode, name, thumb):
     li = xbmcgui.ListItem(name, iconImage=thumb)
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
                                 listitem=li, isFolder=True)
-
-
-
 
 mode = args.get('mode', None)
 
