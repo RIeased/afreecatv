@@ -50,7 +50,7 @@ def live_videos():
             try:
                 ticket = response["data"]["hls_authentication_key"]
         
-                urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gs_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(br_no)
+                urllive = 'http://resourcemanager.afreecatv.com:9090/broad_stream_assign.html?return_type=gcp_cdn&use_cors=true&cors_origin_url=m.afreecatv.com&broad_key={0}-common-original-hls'.format(br_no)
                 live = requests.get(urllive).json()
                 view = live["view_url"]
         
